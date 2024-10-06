@@ -114,6 +114,18 @@ def calculate_time(path, row, current_date, lat, lon):
 def index():
     return render_template('index.html')
 
+@app.route('/landsat')
+def landsat():
+    return render_template('landsat.html')
+
+@app.route('/live')
+def live():
+    return render_template('live.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
 @app.route('/get_time', methods=['POST'])
 def get_time():
     data = request.json
