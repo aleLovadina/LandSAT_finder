@@ -3,8 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Weather Forecast</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            height: 100vh; /* Full height of the viewport */
+            margin: 0; /* Remove default margin */
+            background-color: #000000; /* Background color */
+            color: white; /* Text color */
+            font-family: Arial, sans-serif; /* Font family */
+        }
+
+        header {
+            display: flex;
+            align-items: center; /* Center items vertically */
+            padding: 10px;
+            background-color: #222;
+        }
+
+        .logo {
+            cursor: pointer;
+            font-size: 24px;
+            margin-right: 20px;
+        }
+
+        nav {
+            display: flex; /* Make nav a flex container */
+            flex: 1; /* Allow nav to take available space */
+            justify-content: center; /* Center nav buttons */
+        }
+
+        nav button {
+            color: #ffffff;
+            background-color: #000000;
+            font-size: 19px;
+            border-radius: 25px;
+            padding: 10px 20px;
+            margin: 0 10px; /* Adjust margins */
+            cursor: pointer; 
+        }
+
+        nav button:hover {
+            color: #000000;
+            background-color: #ffffff;
+        }
+
+        .notification-bell {
+            cursor: pointer;
+            display: flex; /* Align bell icon properly */
+            align-items: center; /* Center vertically */
+            justify-content: center; /* Center horizontally */
+            padding: 10px; /* Add padding around the bell */
+            border-radius: 50%; /* Round shape for button effect */
+            background-color: #000; /* Background color for the bell */
+            transition: background-color 0.3s; /* Smooth transition for hover effect */
+            margin-left: auto; /* Push bell icon to the right */
+        }
+
+        .notification-bell:hover {
+            background-color: #ffffff; /* Change background on hover */
+        }
+
+        .bell-icon {
+            font-size: 24px; /* Size of the bell icon */
+            color: #ffffff; /* Bell icon color */
+        }
+
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: calc(100vh - 60px); /* Adjust for header height */
+            text-align: center;
+        }
+
+        video {
+            width: 80%; /* Set width of the video (adjust as needed) */
+            max-width: 600px; /* Set max width for larger screens */
+            border-radius: 15px; /* Optional border radius */
+            margin-bottom: 20px; /* Space between video and title */
+        }
+
+        h1 {
+            font-size: 24px; /* Adjust font size */
+            margin: 15px; /* Remove default margin */
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -16,9 +99,16 @@
             <button onclick="location.href='live'">Live Tracker</button>
             <button onclick="location.href='about'">About Us</button>
         </nav>
+        <div class="notification-bell">
+            <span class="bell-icon">🔔</span> <!-- Notification bell icon -->
+        </div>
     </header>
     <main>
-        <h1>Hello World</h1>
+        <video controls>
+            <source src="/Users/HosamAhmed/Desktop/LandSAT_finder/L9-flyover-2.mp4" type="video/mp4">
+            Your browser does not support the video tag. 
+        </video>
+        <h1>Your LandSat</h1>
     </main>
 </body>
 </html>

@@ -8,6 +8,110 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            height: 100vh; /* Full height of the viewport */
+            margin: 0; /* Remove default margin */
+            background-color: #000000; /* Background color */
+            color: white; /* Text color */
+            font-family: Arial, sans-serif; /* Font family */
+        }
+
+        header {
+            display: flex;
+            align-items: center; /* Center items vertically */
+            padding: 10px;
+            background-color: #222; /* Header background color */
+        }
+
+        .logo {
+            cursor: pointer;
+            font-size: 24px;
+            margin-right: 20px; /* Space between logo and nav */
+        }
+
+        nav {
+            display: flex; /* Make nav a flex container */
+            flex: 1; /* Allow nav to take available space */
+            justify-content: center; /* Center nav buttons */
+        }
+
+        nav button {
+            color: #ffffff;
+            background-color: #000000;
+            font-size: 19px;
+            border-radius: 25px;
+            padding: 10px 20px;
+            margin: 0 10px; /* Adjust margins */
+            cursor: pointer; 
+        }
+
+        nav button:hover {
+            color: #000000;
+            background-color: #ffffff;
+        }
+
+        .notification-bell {
+            cursor: pointer;
+            display: flex; /* Align bell icon properly */
+            align-items: center; /* Center vertically */
+            justify-content: center; /* Center horizontally */
+            padding: 10px; /* Add padding around the bell */
+            border-radius: 50%; /* Round shape for button effect */
+            background-color: #000; /* Background color for the bell */
+            transition: background-color 0.3s; /* Smooth transition for hover effect */
+            margin-left: 20px; /* Space between nav and bell */
+        }
+
+        .notification-bell:hover {
+            background-color: #ffffff; /* Change background on hover */
+        }
+
+        .bell-icon {
+            font-size: 24px; /* Size of the bell icon */
+            color: #ffffff; /* Bell icon color */
+        }
+
+        #search-container {
+            display: flex;
+            justify-content: center; /* Center the search container */
+            position: top;
+            margin-top: 20px; /* Space above the search bar */
+        }
+
+        #locationInput {
+            padding: 10px; /* Padding for input */
+            font-size: 16px; /* Font size for input */
+            border-radius: 5px; /* Rounded corners for input */
+            border: none; /* Remove border */
+            margin-right: 10px; /* Space between input and button */
+            width: 300px; /* Set width for input */
+            position: top;
+        }
+
+        #searchButton {
+            padding: 10px 20px; /* Padding for button */
+            font-size: 16px; /* Font size for button */
+            border-radius: 5px; /* Rounded corners for button */
+            border: none; /* Remove border */
+            background-color: #000; /* Button background color */
+            color: #ffffff; /* Button text color */
+            cursor: pointer; /* Pointer cursor */
+            position: top;
+        }
+
+        #searchButton:hover {
+            background-color: #ffffff; /* Button hover color */
+            color: #000; /* Button text hover color */
+        }
+
+        #map {
+            height: 500px; /* Map height */
+            width: 80%; /* Set width for map, adjust as needed */
+            max-width: 800px; /* Set a max width */
+            margin: 20px; /* Center the map with space above and below */
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -19,15 +123,17 @@
             <button onclick="location.href='live'">Live Tracker</button>
             <button onclick="location.href='about'">About Us</button>
         </nav>
+        <div class="notification-bell">
+            <span class="bell-icon">🔔</span> <!-- Notification bell icon -->
+        </div>
     </header>
     <main>
-        <!-- Updated layout for search bar and map -->
         <div id="search-container">
             <input type="text" id="locationInput" placeholder="Search location">
             <button id="searchButton">Search</button>
         </div>
-        <div id="map" style="height: 500px; width: 100%; margin-top: 10px; margin-bottom: 10px;"></div>
-        <div id="output" style="margin-top: 20px;"></div>
+        <div id="map"></div>
+        <div id="output" style="margin-top: 200px;margin-right: 200px"></div>
     </main>
     <script src="script.js"></script>
     <script>

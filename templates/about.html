@@ -5,6 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            height: 100vh; /* Full height of the viewport */
+            margin: 0; /* Remove default margin */
+            background-color: #000000; /* Background color */
+            color: white; /* Text color */
+            font-family: Arial, sans-serif; /* Font family */
+        }
+
+        header {
+            display: flex;
+            align-items: center; /* Center items vertically */
+            padding: 10px;
+            background-color: #222;
+        }
+
+        .logo {
+            cursor: pointer;
+            font-size: 24px;
+            margin-right: 20px;
+        }
+
+        nav {
+            display: flex; /* Make nav a flex container */
+            flex: 1; /* Allow nav to take available space */
+            justify-content: center; /* Center nav buttons */
+        }
+
+        nav button {
+            color: #ffffff;
+            background-color: #000000;
+            font-size: 19px;
+            border-radius: 25px;
+            padding: 10px 20px;
+            margin: 0 10px; /* Adjust margins */
+            cursor: pointer; 
+        }
+
+        nav button:hover {
+            color: #000000;
+            background-color: #ffffff;
+        }
+
+        .notification-bell {
+            cursor: pointer;
+            display: flex; /* Align bell icon properly */
+            align-items: center; /* Center vertically */
+            justify-content: center; /* Center horizontally */
+            padding: 10px; /* Add padding around the bell */
+            border-radius: 50%; /* Round shape for button effect */
+            background-color: #000; /* Background color for the bell */
+            transition: background-color 0.3s; /* Smooth transition for hover effect */
+            margin-left: auto; /* Push bell icon to the right */
+        }
+
+        .notification-bell:hover {
+            background-color: #ffffff; /* Change background on hover */
+        }
+
+        .bell-icon {
+            font-size: 24px; /* Size of the bell icon */
+            color: #ffffff; /* Bell icon color */
+        }
+
+        main {
+            display: flex;
+            flex-direction: column; /* Align items in a column */
+            justify-content: center;
+            align-items: center;
+            height: calc(100vh - 60px); /* Adjust for header height */
+            text-align: center; /* Center text */
+            padding: 20px; /* Add some padding */
+        }
+
+        h1 {
+            font-size: 36px; /* Increase font size for the heading */
+            margin-bottom: 20px; /* Space below the heading */
+        }
+
+        p {
+            font-size: 18px; /* Font size for the paragraph */
+            max-width: 800px; /* Max width for paragraph */
+            line-height: 1.6; /* Line height for better readability */
+            margin: 0; /* Remove default margin */
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -16,10 +102,13 @@
             <button onclick="location.href='live'">Live Tracker</button>
             <button onclick="location.href='about'">About Us</button>
         </nav>
+        <div class="notification-bell">
+            <span class="bell-icon">🔔</span> <!-- Notification bell icon -->
+        </div>
     </header>
     <main>
         <h1>About Us</h1>
-        <p>This project helps track Landsat data and locations.</p>
+        <p>Welcome to Landsat Explorer, where we empower users to access and analyze satellite imagery for better decision-making and insights. Our platform combines advanced technology and user-friendly interfaces, making it easy for researchers, students, and enthusiasts to explore the Earth from above. We are committed to providing accurate, up-to-date information and fostering a community of environmental awareness. Join us on our journey to unlock the secrets of our planet through the lens of satellite data.</p>
     </main>
 </body>
 </html>
