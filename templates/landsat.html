@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <header>
@@ -20,10 +21,13 @@
         </nav>
     </header>
     <main>
-        <div id="map" style="height: 400px;"></div>
-        <input type="text" id="locationInput" placeholder="Search location">
-        <button id="searchButton">Search</button>
-        <div id="output"></div>
+        <!-- Updated layout for search bar and map -->
+        <div id="search-container">
+            <input type="text" id="locationInput" placeholder="Search location">
+            <button id="searchButton">Search</button>
+        </div>
+        <div id="map" style="height: 500px; width: 100%; margin-top: 10px; margin-bottom: 10px;"></div>
+        <div id="output" style="margin-top: 20px;"></div>
     </main>
     <script src="script.js"></script>
     <script>
@@ -33,14 +37,12 @@
             maxZoom: 19,
         }).addTo(map);
 
-        let currentMarker; // Variable to hold the current marker
+        let currentMarker;
 
-        // Function to update the marker and display coordinates
         function updateMarker(lat, lon, location) {
             if (currentMarker) {
-                map.removeLayer(currentMarker); // Remove the existing marker
+                map.removeLayer(currentMarker);
             }
-            // Update the popup content to include latitude and longitude
             const popupContent = `${location}<br>Latitude: ${lat}<br>Longitude: ${lon}`;
             currentMarker = L.marker([lat, lon]).addTo(map).bindPopup(popupContent).openPopup();
         }
@@ -55,40 +57,22 @@
                         const lon = data[0].lon;
                         map.setView([lat, lon], 10);
                         updateMarker(lat, lon, location);
-
-                        // Call the backend with selected coordinates
-                        $.ajax({
-                            url: '/get_time',
-                            type: 'POST',
-                            contentType: 'application/json',
-                            data: JSON.stringify({latitude: lat, longitude: lon}),
-                            success: function(response) {
-                                if (response.error) {
-                                    $('#output').text(response.error);
-                                } else {
-                                    $('#output').html(`
-                                        <p>Path: ${response.path}</p>
-                                        <p>Row: ${response.row}</p>
-                                        <p>Cycle Day: ${response.cycle_day}</p>
-                                        <p>Next Date: ${response.next_date}</p>
-                                        <p>Time at Location: ${response.time_at_location}</p>
-                                    `);
-                                }
-                            }
-                        });
+                        callBackend(lat, lon);
                     } else {
                         alert('Location not found');
                     }
                 });
         };
 
-        // Add click event to the map
         map.on('click', function(e) {
             const lat = e.latlng.lat;
             const lon = e.latlng.lng;
             updateMarker(lat, lon, 'Clicked Location');
+            callBackend(lat, lon);
+        });
 
-            // Call the backend with clicked coordinates
+        function callBackend(lat, lon) {
+            // Call the backend with selected coordinates
             $.ajax({
                 url: '/get_time',
                 type: 'POST',
@@ -99,16 +83,16 @@
                         $('#output').text(response.error);
                     } else {
                         $('#output').html(`
-                            <p>Path: ${response.path}</p>
-                            <p>Row: ${response.row}</p>
-                            <p>Cycle Day: ${response.cycle_day}</p>
-                            <p>Next Date: ${response.next_date}</p>
-                            <p>Time at Location: ${response.time_at_location}</p>
+                            <p><strong>Path:</strong> ${response.path}</p>
+                            <p><strong>Row:</strong> ${response.row}</p>
+                            <p><strong>Cycle Day:</strong> ${response.cycle_day}</p>
+                            <p><strong>Next Date:</strong> ${response.next_date}</p>
+                            <p><strong>Time at Location:</strong> ${response.time_at_location}</p>
                         `);
                     }
                 }
             });
-        });
+        }
     </script>
 </body>
 </html>
