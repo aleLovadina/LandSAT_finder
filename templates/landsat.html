@@ -29,7 +29,7 @@
         <div id="map" style="height: 500px; width: 100%; margin-top: 10px; margin-bottom: 10px;"></div>
         <div id="output" style="margin-top: 20px;"></div>
     </main>
-    <script src="script.js"></script>
+    <!-- <script src="script.js"></script> -->
     <script>
         const map = L.map('map').setView([0, 0], 2);
 
@@ -38,6 +38,7 @@
         }).addTo(map);
 
         let currentMarker;
+        let polygonLayer;
 
         function updateMarker(lat, lon, location) {
             if (currentMarker) {
@@ -45,6 +46,29 @@
             }
             const popupContent = `${location}<br>Latitude: ${lat}<br>Longitude: ${lon}`;
             currentMarker = L.marker([lat, lon]).addTo(map).bindPopup(popupContent).openPopup();
+        }
+
+        function drawPolygons(polygons) {
+            if (polygonLayer) {
+                map.removeLayer(polygonLayer);
+            }
+
+            polygonLayer = L.geoJSON(polygons, {
+                onEachFeature: function (feature, layer) {
+                    layer.bindPopup(`
+                        <strong>Scene ID:</strong> ${feature.properties.scene_id}<br>
+                        <strong>Acquisition Date:</strong> ${feature.properties.acquisition_date}<br>
+                        <strong>Cloud Cover:</strong> ${feature.properties.cloud_cover}%<br>
+                        <strong>Cycle Day:</strong> ${feature.properties.cycle_day}<br>
+                        <strong>Date:</strong> ${feature.properties.date}
+                    `);
+                },
+                style: {
+                    color: 'blue',
+                    weight: 2,
+                    opacity: 0.6,
+                }
+            }).addTo(map);
         }
 
         document.getElementById('searchButton').onclick = function() {
@@ -72,24 +96,43 @@
         });
 
         function callBackend(lat, lon) {
-            // Call the backend with selected coordinates
+            // Call the backend to get polygons for the selected coordinates
             $.ajax({
-                url: '/get_time',
+                url: '/get_polygons',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({latitude: lat, longitude: lon}),
                 success: function(response) {
-                    if (response.error) {
-                        $('#output').text(response.error);
+                    console.log(response);
+                    if (response.features && response.features.length > 0) {
+                        drawPolygons(response);  // Draw polygons on the map
                     } else {
-                        $('#output').html(`
-                            <p><strong>Path:</strong> ${response.path}</p>
-                            <p><strong>Row:</strong> ${response.row}</p>
-                            <p><strong>Cycle Day:</strong> ${response.cycle_day}</p>
-                            <p><strong>Next Date:</strong> ${response.next_date}</p>
-                            <p><strong>Time at Location:</strong> ${response.time_at_location}</p>
-                        `);
+                        alert('No scenes found for the given location.');
                     }
+                $.ajax({
+                    url: '/get_time',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ latitude: lat, longitude: lon }),
+                    success: function(timeResponse) {
+                        if (timeResponse.error) {
+                            $('#output').text(timeResponse.error);
+                        } else {
+                            $('#output').html(`
+                                <p><strong>Path:</strong> ${timeResponse.path}</p>
+                                <p><strong>Row:</strong> ${timeResponse.row}</p>
+                                <p><strong>Cycle Day:</strong> ${timeResponse.cycle_day}</p>
+                                <p><strong>Time at Location:</strong> ${timeResponse.time_at_location}</p>
+                            `);
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error("Error fetching time data: ", textStatus, errorThrown); // Log any errors
+                    }
+                });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error("Error fetching polygon data: ", textStatus, errorThrown); // Log any errors
                 }
             });
         }

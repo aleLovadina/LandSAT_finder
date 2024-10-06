@@ -4,10 +4,15 @@ import io
 import urllib.request
 import zipfile
 import fiona
-from shapely.geometry import shape, Point
+from shapely.geometry import shape, Point, mapping
 from datetime import datetime, timedelta
 import pytz
 from timezonefinder import TimezoneFinder
+from datetime import datetime
+from landsatxplore.api import API
+from shapely.wkt import loads
+from LandsatCalc import get_landsat_path_row
+import json
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for cross-origin resource sharing
@@ -29,6 +34,9 @@ def get_landsat_path_row(lat, lon, mode='D'):
     shapefile = 'landsat-path-row/WRS2_descending.shp'
     url = "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/atoms/files/WRS2_descending_0.zip"
     download_wrs_shapefiles(url, "landsat-path-row")
+    lat = float(lat)
+    lon = float(lon)
+    print(f"Latitude: {lat}, Type: {type(lat)}")
 
     with fiona.open(shapefile) as shapefile_layer:
         point = Point(lon, lat)
@@ -110,6 +118,58 @@ def calculate_time(path, row, current_date, lat, lon):
     
     return time_at_location
 
+# Update your existing function to fetch Landsat scenes and return them as GeoJSON
+def search_landsat_scenes(lat, lon, start_date, end_date):
+    api = API('samahosam', 'Sasosaso@2022')
+    lat = float(lat)
+    lon = float(lon)
+    path, row = get_landsat_path_row(lat, lon)
+    if path is None or row is None:
+        return []  # Return an empty list if no matching path/row found
+    scenes = api.search(
+        dataset='landsat_ot_c2_l2',
+        latitude=lat,
+        longitude=lon,
+        start_date=start_date,
+        end_date=end_date,
+        max_cloud_cover=10
+    )
+    api.logout()
+
+    geojson_data = {"type": "FeatureCollection", "features": []}
+
+    # Convert each scene's spatial_coverage to GeoJSON format
+    for scene in scenes:
+        wkt_string = str(scene['spatial_coverage'])
+        print(f"WKT string: {wkt_string}, Type: {type(wkt_string)}")
+        polygon = loads(wkt_string)
+        feature = {
+            "type": "Feature",
+            "geometry": mapping(polygon),
+            "properties": {
+                "scene_id": scene["entity_id"],
+                "acquisition_date": scene["acquisition_date"],
+                "cloud_cover": scene["cloud_cover"],
+            }
+        }
+        geojson_data["features"].append(feature)
+    
+    return geojson_data
+
+# Define a route to get polygons as GeoJSON
+@app.route('/get_polygons', methods=['POST'])
+def get_polygons():
+    data = request.get_json()
+    lat = float(data.get("latitude"))
+    lon = float(data.get("longitude"))
+    start_date = data.get("start_date", "2024-01-01")
+    end_date = data.get("end_date", "2024-10-01")
+
+    # Search Landsat scenes
+    polygons = search_landsat_scenes(lat, lon, start_date, end_date)
+    
+    return jsonify(polygons)
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -129,8 +189,8 @@ def about():
 @app.route('/get_time', methods=['POST'])
 def get_time():
     data = request.json
-    lat = data.get('latitude')
-    lon = data.get('longitude')
+    lat = float(data.get('latitude'))
+    lon = float(data.get('longitude'))
     mode = 'D'  # Default to descending for now
 
     print(f"Received coordinates: Latitude = {lat}, Longitude = {lon}")
@@ -150,7 +210,7 @@ def get_time():
             'path': path,
             'row': row,
             'cycle_day': cycle_day,
-            'next_date': next_cycle_date.strftime('%Y-%m-%d'),
+            #'next_date': next_cycle_date.strftime('%Y-%m-%d'),
             'time_at_location': time_at_location.strftime('%Y-%m-%d %H:%M:%S %Z')
         }
     else:

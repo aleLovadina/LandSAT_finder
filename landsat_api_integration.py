@@ -4,8 +4,8 @@ import time
 from landsatxplore.api import API
 from datetime import datetime, timedelta
 from LandsatCalc import get_landsat_path_row
+from shapely.wkt import loads
 import matplotlib.pyplot as plt
-import pandas as pd
 
 # Function to convert various object types to string
 def custom_json_serial(obj):
@@ -42,17 +42,31 @@ def search_landsat_scenes(lat, lon, start_date, end_date):
    
     scene_data = []
     for scene in scenes:
-        #print(json.dumps(scene, default=custom_json_serial, indent=2))
-        #Use the custom serialization function to serialize scenes
-        print(scene['entity_id'])
-        scene_data.append({
-            "scene_id": scene['entity_id'],
-            "acquisition_date": scene['publish_date'],
-            "cloud_cover": scene['cloud_cover'],
-        })
-    
+        # Load the polygon using Shapely
+        print()
+        #wkt_string = "POLYGON ((-6.43793 49.64714, -3.88869 49.19698, -3.11761 50.89143, -5.75664 51.34855, -6.43793 49.64714))"
+        wkt_string = str(scene['spatial_coverage'])
+        polygon = loads(wkt_string)
+
+        # Get properties
+        centroid = polygon.centroid
+        area = polygon.area
+        perimeter = polygon.length
+
+        # Print properties
+        print(f"Centroid: {centroid}")
+        print(f"Area: {area}")
+        print(f"Perimeter: {perimeter}")
+
+        # Plot the polygon using Matplotlib
+        x, y = polygon.exterior.xy
+        plt.plot(x, y)
+        plt.scatter(centroid.x, centroid.y, color='red')  # Plot centroid
+        plt.title("Polygon Visualization with Centroid")
+        plt.show()
+
     api.logout()
-    return scene_data  # Return the list of dictionaries containing scene data
+    return scenes # Return the list of dictionaries containing scene data
 
 # Function to send a notification
 def send_notification(date):
@@ -74,31 +88,14 @@ if __name__ == "__main__":
     start_date = '2024-01-01'
     end_date = '2024-10-01'
     
+    # Search for Landsat scenes
     scenes_data = search_landsat_scenes(latitude, longitude, start_date, end_date)
-
+    
     if scenes_data:
-        # Assuming the next overpass date is known or calculated
-        # Replace this with actual date calculation logic
-        next_overpass_date = datetime.now() + timedelta(days=15)  # Example date
-        schedule_notification(latitude, longitude, next_overpass_date)
+        # Save the scene data to a JSON-formatted text file
+        with open("landsat_scenes_data.txt", "w") as outfile:
+            json.dump(scenes_data, outfile, indent=4, default=custom_json_serial)
+        print("Landsat scene data saved to 'landsat_scenes_data.txt'.")
 
-        # Convert to DataFrame
-        df = pd.DataFrame(scenes_data)
-
-        # Convert the acquisition_date to a datetime object
-        df['acquisition_date'] = pd.to_datetime(df['acquisition_date'])
-        
-        # Display the DataFrame as a table
-        print("Landsat Scene Data:")
-        print(df)
-
-        # Plot cloud cover over time
-        plt.figure(figsize=(12, 6))
-        plt.plot(df['acquisition_date'], df['cloud_cover'], marker='o', linestyle='-')
-        plt.title('Cloud Coverage Over Time for Landsat Scenes')
-        plt.xlabel('Acquisition Date')
-        plt.ylabel('Cloud Coverage (%)')
-        plt.xticks(rotation=45)
-        plt.grid()
-        plt.tight_layout()
-        plt.show()
+        # Example print statement to confirm the file contents
+        print("Sample data:", scenes_data[0])
